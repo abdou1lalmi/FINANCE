@@ -1,9 +1,42 @@
+'use client';
+
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import React from 'react';
+import { createClientComponentClient } from '@/lib/supabaseClient';
+import { useRouter } from 'next/navigation';
+import { User } from '@supabase/supabase-js';
 
 const Header: React.FC = () => {
-  // Placeholder for authentication state
-  const isAuthenticated = false; // This will be replaced with actual auth logic later
+  const [user, setUser] = useState<User | null>(null);
+  const supabase = createClientComponentClient();
+  const router = useRouter();
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      setUser(user);
+    };
+
+    fetchUser();
+
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((event, session) => {
+      setUser(session?.user ?? null);
+    });
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, [supabase]);
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    router.push('/login');
+    router.refresh(); // Refresh server components
+  };
 
   const navLinks = [
     { href: '/dashboard', label: 'Dashboard', protected: true },
@@ -22,7 +55,7 @@ const Header: React.FC = () => {
           {/* Navigation Links */}
           <nav className="hidden md:flex space-x-4">
             {navLinks.map((link) => {
-              if (!link.protected || isAuthenticated) {
+              if (!link.protected || user) {
                 return (
                   <Link
                     key={link.href}
@@ -39,10 +72,18 @@ const Header: React.FC = () => {
 
           {/* Auth Links */}
           <div className="flex items-center space-x-4">
-            {isAuthenticated ? (
-              <button className="text-gray-600 hover:text-indigo-600 transition duration-150 ease-in-out">
-                Logout
-              </button>
+            {user ? (
+              <>
+                <span className="text-sm text-gray-600 hidden sm:inline">
+                  {user.email}
+                </span>
+                <button
+                  onClick={handleLogout}
+                  className="text-gray-600 hover:text-indigo-600 transition duration-150 ease-in-out"
+                >
+                  Logout
+                </button>
+              </>
             ) : (
               <>
                 <Link

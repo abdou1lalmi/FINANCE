@@ -28,7 +28,10 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <Layout>{children}</Layout>
+        <Layout>
+          {children}
+          <SupabaseAuthListener />
+        </Layout>
       </body>
     </html>
   );
