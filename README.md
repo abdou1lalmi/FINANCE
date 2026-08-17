@@ -1,36 +1,101 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# FINANCE
 
-## Getting Started
+A full-stack personal finance dashboard for tracking income, expenses, and transaction history in one focused workspace.
 
-First, run the development server:
+FINANCE is built with **Next.js**, **TypeScript**, **React**, **Tailwind CSS**, **Chart.js**, and **Supabase**. The application includes authentication, user-scoped transaction storage, dashboard summaries, visual charts, and transaction management.
+
+## Features
+
+- Secure registration and login flows backed by Supabase Auth.
+- Personal dashboard with income, expense, and balance summaries.
+- Transaction creation, editing, and deletion.
+- Income and expense categorisation with dates, notes, and amounts.
+- Chart.js visualisations for understanding financial activity.
+- Server-side Supabase client support through the Next.js App Router.
+- TypeScript database definitions for the `transactions` table.
+
+## Technology
+
+| Layer | Technology |
+| --- | --- |
+| Frontend | React 19, Next.js 16, TypeScript |
+| Styling | Tailwind CSS 4 |
+| Data visualisation | Chart.js and `react-chartjs-2` |
+| Authentication and persistence | Supabase Auth and Supabase Postgres |
+| Quality tooling | ESLint 9, Prettier, TypeScript |
+
+## Local development
+
+### Prerequisites
+
+- Node.js 20 or newer.
+- A Supabase project with authentication enabled.
+- A `transactions` table matching the types in [`src/lib/database.types.ts`](src/lib/database.types.ts).
+
+### Setup
+
+```bash
+git clone https://github.com/abdou1lalmi/FINANCE.git
+cd FINANCE
+npm install
+cp .env.example .env.local
+```
+
+Add the following values to `.env.local`:
+
+```bash
+NEXT_PUBLIC_SUPABASE_URL=your-supabase-project-url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your-supabase-anon-key
+```
+
+Start the development server:
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000) in your browser.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Available scripts
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+| Command | Purpose |
+| --- | --- |
+| `npm run dev` | Start the local development server. |
+| `npm run build` | Create a production build. |
+| `npm run start` | Serve the production build. |
+| `npm run lint` | Run ESLint. |
 
-## Learn More
+## Data model
 
-To learn more about Next.js, take a look at the following resources:
+The application currently uses a user-scoped `transactions` table with the following core fields:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+| Field | Description |
+| --- | --- |
+| `user_id` | The authenticated Supabase user who owns the transaction. |
+| `amount` | The transaction amount. |
+| `category` | A user-facing category such as food, salary, or transport. |
+| `type` | Either `income` or `expense`. |
+| `date` | The transaction date in ISO format. |
+| `note` | An optional note. |
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+For production deployments, enable Supabase Row Level Security and restrict every transaction operation to the authenticated owner identified by `auth.uid()`.
 
-## Deploy on Vercel
+## Contributing
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Issues and pull requests are welcome. Before opening a pull request, run `npm run lint` and `npm run build`, describe the user-facing impact, and include screenshots for visual changes. Please do not commit secrets or real financial information.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Security and privacy
+
+FINANCE is intended for personal financial tracking. Never commit Supabase service-role keys, exported user data, or credentials. Use the public anon key only in the browser-facing configuration and enforce access control with Supabase Row Level Security policies.
+
+## Status
+
+This project is an actively evolving portfolio application. The roadmap includes stronger automated tests, improved validation and error states, and a documented Supabase migration for reproducible setup.
+
+## License
+
+No license has been declared yet. Until a license is added, reuse and redistribution are not granted by default.
+
+## Author
+
+Built by [abdou1lalmi](https://github.com/abdou1lalmi). See the [GitHub profile](https://github.com/abdou1lalmi) for related projects.
