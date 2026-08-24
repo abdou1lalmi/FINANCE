@@ -1,12 +1,23 @@
 import React from 'react';
 import { createServerComponentClient } from '@/lib/supabaseServer';
-import { Database, Tables } from '@/lib/database.types';
-import { cookies } from 'next/headers';
 
-type Transaction = Tables<'transactions'>;
+type CardProps = { title: string; value: number; color: string };
+
+const formatCurrency = (amount: number) =>
+  new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'USD',
+  }).format(amount);
+
+const SummaryCard: React.FC<CardProps> = ({ title, value, color }) => (
+  <div className={`p-6 rounded-lg shadow-lg ${color}`}>
+    <p className="text-sm font-medium text-white uppercase tracking-wider">{title}</p>
+    <p className="mt-1 text-3xl font-bold text-white">{formatCurrency(value)}</p>
+  </div>
+);
 
 const DashboardPage: React.FC = async () => {
-  const supabase = createServerComponentClient();
+  const supabase = await createServerComponentClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -27,8 +38,6 @@ const DashboardPage: React.FC = async () => {
   }
 
   const today = new Date();
-  const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
-  const endOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0);
 
   const currentMonthTransactions = transactions.filter((t) => {
     const transactionDate = new Date(t.date);
@@ -58,40 +67,22 @@ const DashboardPage: React.FC = async () => {
     .filter((t) => t.type === 'expense')
     .reduce((sum, t) => sum + t.amount, 0);
 
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
-    }).format(amount);
-  };
-
-  const Card: React.FC<{ title: string; value: number; color: string }> = ({
-    title,
-    value,
-    color,
-  }) => (
-    <div className={`p-6 rounded-lg shadow-lg ${color}`}>
-      <p className="text-sm font-medium text-white uppercase tracking-wider">{title}</p>
-      <p className="mt-1 text-3xl font-bold text-white">{formatCurrency(value)}</p>
-    </div>
-  );
-
   return (
     <div className="py-10">
       <h1 className="text-4xl font-bold text-gray-900 mb-8">Dashboard</h1>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
-        <Card
+        <SummaryCard
           title="Total Balance"
           value={totalBalance}
           color={totalBalance >= 0 ? 'bg-indigo-600' : 'bg-red-600'}
         />
-        <Card
+        <SummaryCard
           title="Income (Month)"
           value={monthlyIncome}
           color="bg-green-600"
         />
-        <Card
+        <SummaryCard
           title="Expenses (Month)"
           value={monthlyExpense}
           color="bg-red-600"

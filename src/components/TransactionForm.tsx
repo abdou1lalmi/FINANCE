@@ -1,7 +1,7 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
-import { TablesInsert, TablesUpdate } from '@/lib/database.types';
+import React, { useState } from 'react';
+import { TablesInsert } from '@/lib/database.types';
 import { createClientComponentClient } from '@/lib/supabaseClient';
 
 type Transaction = TablesInsert<'transactions'> & { id?: string };
@@ -28,19 +28,6 @@ const TransactionForm: React.FC<TransactionFormProps> = ({
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    if (initialData) {
-      setFormData({
-        amount: initialData.amount,
-        category: initialData.category,
-        type: initialData.type,
-        date: initialData.date,
-        note: initialData.note,
-        user_id: initialData.user_id,
-      });
-    }
-  }, [initialData]);
 
   const handleChange = (
     e: React.ChangeEvent<
@@ -69,7 +56,7 @@ const TransactionForm: React.FC<TransactionFormProps> = ({
       return;
     }
 
-    const transactionData: TablesInsert<'transactions'> | TablesUpdate<'transactions'> = {
+    const transactionData: TablesInsert<'transactions'> = {
       ...formData,
       user_id: user.id,
       amount: formData.amount,
@@ -89,7 +76,7 @@ const TransactionForm: React.FC<TransactionFormProps> = ({
         .select();
     } else {
       // Insert
-      result = await supabase.from('transactions').insert([transactionData]).select();
+      result = await supabase.from('transactions').insert(transactionData).select();
     }
 
     if (result.error) {

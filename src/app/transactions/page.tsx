@@ -2,15 +2,13 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { createClientComponentClient } from '@/lib/supabaseClient';
-import { Database, Tables } from '@/lib/database.types';
+import { Tables } from '@/lib/database.types';
 import TransactionForm from '@/components/TransactionForm';
-import { useRouter } from 'next/navigation';
 
 type Transaction = Tables<'transactions'>;
 
 const TransactionsPage: React.FC = () => {
-  const supabase = createClientComponentClient<Database>();
-  const router = useRouter();
+  const supabase = createClientComponentClient();
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -53,7 +51,11 @@ const TransactionsPage: React.FC = () => {
   }, [supabase]);
 
   useEffect(() => {
-    fetchTransactions();
+    const loadTransactions = async () => {
+      await fetchTransactions();
+    };
+
+    void loadTransactions();
   }, [fetchTransactions]);
 
   const handleAddClick = () => {
@@ -198,6 +200,7 @@ const TransactionsPage: React.FC = () => {
         <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50 flex justify-center items-center">
           <div className="relative bg-white rounded-lg shadow-xl w-full max-w-md p-6">
             <TransactionForm
+              key={editingTransaction?.id ?? 'new'}
               initialData={editingTransaction}
               onSave={fetchTransactions}
               onClose={handleModalClose}
